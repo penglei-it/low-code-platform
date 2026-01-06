@@ -1,0 +1,59 @@
+version: '3.8'
+
+services:
+  # 后端服务
+  # Backend service
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: low-code-platform-backend
+    ports:
+      - "3001:3001"
+    environment:
+      - NODE_ENV=production
+      - PORT=3001
+      - HOST=0.0.0.0
+      - DATABASE_URL=file:./prisma/dev.db
+    volumes:
+      # 持久化数据库文件
+      # Persist database file
+      - ./backend/prisma/dev.db:/app/prisma/dev.db
+      - ./backend/prisma/dev.db-journal:/app/prisma/dev.db-journal
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:3001/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # 前端服务
+  # Frontend service
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        # 构建时设置 API 地址，需要根据实际部署环境修改
+        # Set API address at build time, modify according to actual deployment environment
+        # 如果后端和前端在同一台服务器，使用 localhost
+        # If backend and frontend are on the same server, use localhost
+        - VITE_API_BASE_URL=http://localhost:3001/api
+    container_name: low-code-platform-frontend
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 20s
+
+networks:
+  default:
+    name: low-code-platform-network
+

@@ -1,0 +1,112 @@
+// Prisma Schema
+// 数据库模型定义
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+// 项目模型
+model Project {
+  id          String   @id @default(uuid())
+  name        String
+  description String?
+  status      String   @default("active") // active, archived
+  components  String?  // JSON字符串，存储组件树
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([status])
+  @@index([createdAt])
+}
+
+// API定义模型
+model ApiDefinition {
+  id          String   @id @default(uuid())
+  name        String
+  path        String
+  method      String   // GET, POST, PUT, DELETE
+  description String?
+  queryParams String?  // JSON字符串，存储查询参数
+  headers     String?  // JSON字符串，存储请求头
+  bodySample  String?  // JSON字符串，存储请求体示例
+  mockResponse String? // JSON字符串，存储Mock响应
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([method])
+  @@index([path])
+  @@index([createdAt])
+}
+
+// 数据模型
+model DataModel {
+  id          String   @id @default(uuid())
+  name        String
+  description String?
+  fields      String   // JSON字符串，存储字段定义
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([name])
+  @@index([createdAt])
+}
+
+// 工作流定义模型
+model Workflow {
+  id          String   @id @default(uuid())
+  name        String
+  description String?
+  nodes       String   // JSON字符串，存储节点定义
+  edges       String?  // JSON字符串，存储连线定义
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([name])
+  @@index([createdAt])
+}
+
+// 工作流实例模型
+model WorkflowInstance {
+  id          String   @id @default(uuid())
+  workflowId  String?
+  name        String
+  status      String   @default("pending") // pending, running, completed, failed
+  data        String?  // JSON字符串，存储实例数据
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([workflowId])
+  @@index([status])
+  @@index([createdAt])
+}
+
+// 表单定义模型
+model FormDefinition {
+  id          String   @id @default(uuid())
+  name        String
+  description String?
+  config      String   // JSON字符串，存储表单配置
+  fields      String   // JSON字符串，存储字段定义
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([name])
+  @@index([createdAt])
+}
+
+// 表单提交数据模型
+model FormSubmission {
+  id          String   @id @default(uuid())
+  formId      String
+  formName    String
+  data        String   // JSON字符串，存储提交的数据
+  submittedAt DateTime @default(now())
+
+  @@index([formId])
+  @@index([submittedAt])
+}
