@@ -48,9 +48,12 @@ app.use((err: any, req: express.Request, res: express.Response, next: express.Ne
 
 // 启动服务器 - 监听所有网络接口以支持外部访问
 // Start server - listen on all network interfaces to support external access
+// Railway 会自动设置 PORT 环境变量，必须使用它
+// Railway automatically sets PORT environment variable, must use it
 const HOST = process.env.HOST || '0.0.0.0';
 app.listen(Number(PORT), HOST, async () => {
-  console.log(`Server is running on http://${HOST}:${PORT}`);
+  console.log(`✅ Server is running on http://${HOST}:${PORT}`);
+  console.log(`📊 Environment: ${process.env.NODE_ENV || 'development'}`);
   
   // 测试数据库连接
   try {
